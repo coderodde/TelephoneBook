@@ -50,8 +50,8 @@ char* get_telephone_record_book_file_path()
     /* Allocate the space for the entire */
     telephone_record_book_file_path =
     malloc(sizeof(char)
-           * (home_directory_name_length
-              + 2 + strlen(TELEPHONE_RECORD_BOOK_FILE_NAME)));
+            * (home_directory_name_length
+               + 2 + strlen(TELEPHONE_RECORD_BOOK_FILE_NAME)));
     
     if (!telephone_record_book_file_path)
     {
@@ -271,7 +271,7 @@ output_table_strings_create(telephone_book_record_list* list)
             TITLE_TELEPHONE_NUMBER,
             TITLE_CONTACT_ID);
     
-    /* @ALLOC: output_table, record_format_string, title_string */
+    /* ALLOCATED: output_table, record_format_string, title_string */
     free(title_string_format);
     
     separator_string =

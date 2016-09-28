@@ -133,6 +133,7 @@ int command_list_telephone_book_records_impl(
     telephone_book_record_list* best_record_list =
         telephone_book_record_list_alloc();
     
+    /* ALLOCATED: best_record_list */
     if (!best_record_list)
     {
         fputs("ERROR: Cannot allocate the best record list.", stderr);
@@ -258,15 +259,15 @@ int command_list_telephone_book_records_impl(
 /*******************************************************************************
 * Handles the command for listing the records.                                 *
 *******************************************************************************/
-static int command_list_telephone_book_records_v2(int argc, char* argv[])
+static int command_list_telephone_book_records(int argc, char* argv[])
 {
     char* file_name;
     FILE* f;
     telephone_book_record_list* record_list;
-    output_table_strings* output_strings;
     char* last_name;
     char* first_name;
     
+    /* ALLOCATED: file_name */
     file_name = get_telephone_record_book_file_path();
     
     if (!file_name)
@@ -288,6 +289,7 @@ static int command_list_telephone_book_records_v2(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    /* ALLOCATED: file_name, record_list */
     record_list = telephone_book_record_list_read_from_file(f);
     fclose(f);
     
@@ -295,16 +297,6 @@ static int command_list_telephone_book_records_v2(int argc, char* argv[])
     {
         fputs("ERROR: Cannot read the record book file.", stderr);
         free(file_name);
-        return EXIT_FAILURE;
-    }
-    
-    output_strings = output_table_strings_create(record_list);
-    
-    if (!output_strings)
-    {
-        fputs("ERROR: Cannot create the format strings.", stderr);
-        free(file_name);
-        telephone_book_record_list_free(record_list);
         return EXIT_FAILURE;
     }
     
@@ -333,6 +325,9 @@ static int command_list_telephone_book_records_v2(int argc, char* argv[])
         last_name = NULL;
     }
     
+    /* ALLOCATED: record_list */
+    free(file_name);
+    
     return command_list_telephone_book_records_impl(record_list,
                                                     last_name,
                                                     first_name);
@@ -354,6 +349,7 @@ static int command_add_record(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    /* ALLOCATED: file_name */
     file_name = get_telephone_record_book_file_path();
     
     if (!file_name)
@@ -375,6 +371,7 @@ static int command_add_record(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    /* ALLOCATED: file_name, record_list */
     record_list = telephone_book_record_list_read_from_file(f);
     fclose(f);
     
@@ -385,6 +382,7 @@ static int command_add_record(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    /* ALLOCATED: file_name, record_list, record */
     record = telephone_book_record_alloc(argv[2], argv[3], argv[4], -1);
     
     if (!record)
@@ -400,6 +398,7 @@ static int command_add_record(int argc, char* argv[])
         fputs("ERROR: Cannot add the new entry to the record book.", stderr);
         free(file_name);
         telephone_book_record_list_free(record_list);
+        telephone_book_record_free(record);
         return EXIT_FAILURE;
     }
     
@@ -413,7 +412,7 @@ static int command_add_record(int argc, char* argv[])
     if (!f)
     {
         fputs("ERROR: Cannot open the record book file.", stderr);
-        free(file_name);
+        /* 'record' is contained in 'record_list' so is freed by it: */
         telephone_book_record_list_free(record_list);
         return EXIT_FAILURE;
     }
@@ -424,13 +423,14 @@ static int command_add_record(int argc, char* argv[])
     }
     
     fclose(f);
+    /* 'record' is contained in 'record_list' so is freed by it: */
     telephone_book_record_list_free(record_list);
     return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
 * Handles the commmand for removing records by their IDs.                      *
-*******************************************************************************/ 
+*******************************************************************************/
 static int command_remove_records(int argc, char* argv[])
 {
     char* file_name;
@@ -449,6 +449,7 @@ static int command_remove_records(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
     
+    /* ALLOCATED: file_name */
     file_name = get_telephone_record_book_file_path();
     
     if (!file_name)
@@ -470,6 +471,7 @@ static int command_remove_records(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    /* ALLOCATED: file_name, record_list */
     record_list = telephone_book_record_list_read_from_file(f);
     fclose(f);
     
@@ -480,6 +482,7 @@ static int command_remove_records(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    /* ALLOCATED: file_name, record_list, removed_record_list */
     removed_record_list = telephone_book_record_list_alloc();
     
     if (!removed_record_list)
@@ -496,6 +499,8 @@ static int command_remove_records(int argc, char* argv[])
     telephone_book_record_list_fix_ids(record_list);
     
     f = fopen(file_name, "w");
+    
+    /* ALLOCATED: record_list, removed_record_list */
     free(file_name); /* We do not need 'file_name' anymore. */
     
     if (!f)
@@ -574,7 +579,7 @@ static int command_remove_records(int argc, char* argv[])
 int main(int argc, char* argv[]) {
     if (argc == 1)
     {
-        return command_list_telephone_book_records_v2(argc, argv);
+        return command_list_telephone_book_records(argc, argv);
     }
     
     if (strcmp(argv[1], OPTION_HELP_SHORT) == 0 ||
@@ -596,5 +601,5 @@ int main(int argc, char* argv[]) {
         return command_remove_records(argc, argv);
     }
     
-    return command_list_telephone_book_records_v2(argc, argv);
+    return command_list_telephone_book_records(argc, argv);
 }
