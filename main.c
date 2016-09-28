@@ -12,6 +12,27 @@ static const char* OPTION_REMOVE_LONG  = "--remove";
 
 static const size_t RECORDS_PER_BLOCK = 3;
 
+static size_t min3(size_t a, size_t b, size_t c)
+{
+    if (a < b)
+    {
+        if (c < a)
+        {
+            return c;
+        }
+        
+        return a;
+    }
+    
+    /* b <= a */
+    if (c < b)
+    {
+        return c;
+    }
+    
+    return b;
+}
+
 static void print_help(char* executable_name)
 {
     char path_separator = separator();
@@ -152,6 +173,245 @@ static int command_list_telephone_book_records()
     telephone_book_record_list_free(record_list);
     output_table_strings_free(output_strings);
     return EXIT_SUCCESS;
+}
+
+static size_t edit_distance(char* word1,
+                            char* word2,
+                            size_t length1,
+                            size_t length2)
+{
+    int cost;
+    
+    if (length1 == 0)
+    {
+        return length2;
+    }
+    
+    if (length2 == 0)
+    {
+        return length1;
+    }
+    
+    cost = word1[length1 - 1] == word2[length2 - 1] ? 0 : 1;
+    
+    return min3(edit_distance(word1, word2, length1, length2 - 1) + 1,
+                edit_distance(word1, word2, length1 - 1, length2) + 1,
+                edit_distance(word1, word2, length1 - 1, length2 - 1) + cost);
+}
+
+static size_t compute_edit_distance(char* word1, char* word2)
+{
+    return edit_distance(word1, word2, strlen(word1), strlen(word2));
+}
+
+int command_list_telephone_book_records_impl(
+                        telephone_book_record_list* record_list,
+                        char* last_name,
+                        char* first_name)
+{
+    size_t best_tentative_distance = 1000 * 1000 * 1000;
+    size_t temp_distance;
+    size_t i;
+    output_table_strings* output_strings;
+    telephone_book_record* record;
+    telephone_book_record_list_node* current_node;
+    telephone_book_record_list* best_record_list =
+        telephone_book_record_list_alloc();
+    
+    if (!best_record_list)
+    {
+        fputs("ERROR: Cannot allocate the best record list.", stderr);
+        return EXIT_FAILURE;
+    }
+    
+    current_node = record_list->head;
+    
+    while (current_node)
+    {
+        temp_distance =
+        (last_name ?
+            compute_edit_distance(last_name,
+                                  current_node->record->last_name) : 0) +
+        (first_name ?
+            compute_edit_distance(first_name,
+                                  current_node->record->first_name) : 0);
+        
+        if (best_tentative_distance > temp_distance)
+        {
+            /* 'temp_distance' improves the best known edit distance,     */
+            /* clear the current best list and append the current record: */
+            telephone_book_record_list_free(best_record_list);
+            best_record_list = telephone_book_record_list_alloc();
+            
+            if (!best_record_list)
+            {
+                fputs("ERROR: Cannot allocate new best record list.", stderr);
+                return EXIT_FAILURE;
+            }
+            
+            record = telephone_book_record_alloc(
+                            current_node->record->last_name,
+                            current_node->record->first_name,
+                            current_node->record->telephone_number,
+                            current_node->record->id);
+            
+            if (!record)
+            {
+                fputs("ERROR: Cannot allocate a copy record.", stderr);
+                telephone_book_record_list_free(best_record_list);
+                return EXIT_FAILURE;
+            }
+            
+            if (telephone_book_record_list_add_record(best_record_list, record))
+            {
+                fputs("ERROR: Cannot add a new record to the best list.",
+                      stderr);
+                telephone_book_record_list_free(best_record_list);
+                telephone_book_record_free(record);
+                return EXIT_FAILURE;
+            }
+            
+            best_tentative_distance = temp_distance;
+        }
+        else if (best_tentative_distance == temp_distance)
+        {
+            /* Append the current record to the best list: */
+            record = telephone_book_record_alloc(
+                            current_node->record->last_name,
+                            current_node->record->first_name,
+                            current_node->record->telephone_number,
+                            current_node->record->id);
+            
+            if (!record)
+            {
+                fputs("ERROR: Cannot allocate a copy record.", stderr);
+                telephone_book_record_list_free(best_record_list);
+                return EXIT_FAILURE;
+            }
+            
+            
+            if (telephone_book_record_list_add_record(best_record_list, record))
+            {
+                fputs("ERROR: Cannot add a new record to the best list.",
+                      stderr);
+                telephone_book_record_list_free(best_record_list);
+                telephone_book_record_free(record);
+                return EXIT_FAILURE;
+            }
+        }
+        
+        current_node = current_node->next;
+    }
+    
+    output_strings = output_table_strings_create(best_record_list);
+    
+    if (!output_strings)
+    {
+        telephone_book_record_list_free(best_record_list);
+        return EXIT_FAILURE;
+    }
+    
+    puts(output_strings->separator_string);
+    puts(output_strings->title_string);
+    puts(output_strings->separator_string);
+    
+    current_node = best_record_list->head;
+    i = 0;
+    
+    while (current_node)
+    {
+        printf(output_strings->record_format_string,
+               current_node->record->last_name,
+               current_node->record->first_name,
+               current_node->record->telephone_number,
+               current_node->record->id);
+        
+        current_node = current_node->next;
+        ++i;
+        
+        if (current_node && i % RECORDS_PER_BLOCK == 0)
+        {
+            puts(output_strings->separator_string);
+        }
+    }
+    
+    output_table_strings_free(output_strings);
+    telephone_book_record_list_free(best_record_list);
+    return EXIT_SUCCESS;
+}
+
+static int command_list_telephone_book_records_v2(int argc, char* argv[])
+{
+    char* file_name;
+    FILE* f;
+    telephone_book_record_list* record_list;
+    output_table_strings* output_strings;
+    char* last_name;
+    char* first_name;
+    
+    file_name = get_telephone_record_book_file_path();
+    
+    if (!file_name)
+    {
+        fputs("ERROR: Cannot allocate memory for the telephone book file name.",
+              stderr);
+        return EXIT_FAILURE;
+    }
+    
+    f = fopen(get_telephone_record_book_file_path(), "r");
+    
+    if (!f)
+    {
+        fprintf(stderr,
+                "ERROR: Cannot open the record book file '%s'.\n",
+                file_name);
+        
+        free(file_name);
+        return EXIT_FAILURE;
+    }
+    
+    record_list = telephone_book_record_list_read_from_file(f);
+    fclose(f);
+    
+    if (!record_list)
+    {
+        fputs("ERROR: Cannot read the record book file.", stderr);
+        free(file_name);
+        return EXIT_FAILURE;
+    }
+    
+    output_strings = output_table_strings_create(record_list);
+    
+    if (!output_strings)
+    {
+        fputs("ERROR: Cannot create the format strings.", stderr);
+        free(file_name);
+        telephone_book_record_list_free(record_list);
+        return EXIT_FAILURE;
+    }
+    
+    /* If fails, silently ignore: */
+    telephone_book_record_list_sort(record_list);
+    /* Does not ask for resources, should be OK: */
+    telephone_book_record_list_fix_ids(record_list);
+    
+    /* "w" means overwrite the file. */
+    f = fopen(file_name, "w");
+    
+    if (f)
+    {
+        /* Write the file back. It will update the order of the records and */
+        /* fix the record IDs, if needed. */
+        telephone_book_record_list_write_to_file(record_list, f);
+        fclose(f);
+    }
+    
+    last_name  = argc >= 2 ? argv[1] : NULL;
+    first_name = argc >= 3 ? argv[2] : NULL;
+    
+    return command_list_telephone_book_records_impl(record_list,
+                                                    last_name,
+                                                    first_name);
 }
 
 static int command_add_record(int argc, char* argv[])
@@ -399,5 +659,5 @@ int main(int argc, char* argv[]) {
         return command_remove_records(argc, argv);
     }
     
-    print_help(argv[0]);
+    return command_list_telephone_book_records_v2(argc, argv);
 }
