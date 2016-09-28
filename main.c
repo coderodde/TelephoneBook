@@ -71,111 +71,6 @@ static void print_help(char* executable_name)
          "entries");
 }
 
-static int command_list_telephone_book_records()
-{
-    char* file_name;
-    FILE* f;
-    telephone_book_record_list* record_list;
-    telephone_book_record_list_node* current_node;
-    output_table_strings* output_strings;
-    int error_status;
-    size_t i;
-    
-    file_name = get_telephone_record_book_file_path();
-    
-    if (!file_name)
-    {
-        fputs("ERROR: Cannot allocate memory for the telephone book file name.",
-              stderr);
-        return EXIT_FAILURE;
-    }
-    
-    f = fopen(get_telephone_record_book_file_path(), "r");
-    
-    if (!f)
-    {
-        fprintf(stderr,
-                "ERROR: Cannot open the record book file '%s'.\n",
-                file_name);
-        
-        free(file_name);
-        return EXIT_FAILURE;
-    }
-    
-    record_list = telephone_book_record_list_read_from_file(f);
-    fclose(f);
-    
-    if (!record_list)
-    {
-        fputs("ERROR: Cannot read the record book file.", stderr);
-        free(file_name);
-        return EXIT_FAILURE;
-    }
-    
-    error_status = telephone_book_record_list_sort(record_list);
-    
-    if (error_status)
-    {
-        fputs("ERROR: Cannot sort the entries.", stderr);
-        free(file_name);
-        telephone_book_record_list_free(record_list);
-        return EXIT_FAILURE;
-    }
-    
-    /* Does not ask for resources, should be OK: */
-    telephone_book_record_list_fix_ids(record_list);
-    
-    /* "w" means overwrite the file. */
-    f = fopen(file_name, "w");
-    
-    if (f)
-    {
-        /* Write the file back. It will update the order of the records and */
-        /* fix the record IDs, if needed. */
-        telephone_book_record_list_write_to_file(record_list, f);
-        fclose(f);
-    }
-    
-    current_node = record_list->head;
-    output_strings = output_table_strings_create(record_list);
-    
-    if (!output_strings)
-    {
-        fputs("ERROR: Cannot allocate output table format data.", stderr);
-        free(file_name);
-        telephone_book_record_list_free(record_list);
-        return EXIT_FAILURE;
-    }
-    
-    puts(output_strings->separator_string);
-    puts(output_strings->title_string);
-    puts(output_strings->separator_string);
-    
-    i = 0;
-    
-    while (current_node)
-    {
-        printf(output_strings->record_format_string,
-               current_node->record->last_name,
-               current_node->record->first_name,
-               current_node->record->telephone_number,
-               current_node->record->id);
-        
-        current_node = current_node->next;
-        ++i;
-        
-        if (current_node && i % RECORDS_PER_BLOCK == 0)
-        {
-            puts(output_strings->separator_string);
-        }
-    }
-    
-    free(file_name);
-    telephone_book_record_list_free(record_list);
-    output_table_strings_free(output_strings);
-    return EXIT_SUCCESS;
-}
-
 static size_t edit_distance(char* word1,
                             char* word2,
                             size_t length1,
@@ -411,7 +306,7 @@ static int command_list_telephone_book_records_v2(int argc, char* argv[])
     last_name  = argc >= 2 ? argv[1] : NULL;
     first_name = argc >= 3 ? argv[2] : NULL;
     
-    if (strcmp(argv[1], "-") == 0)
+    if (argc > 1 && strcmp(argv[1], "-") == 0)
     {
         /* Match all last names: */
         last_name = NULL;
@@ -652,7 +547,7 @@ static int command_remove_records(int argc, char* argv[])
 int main(int argc, char* argv[]) {
     if (argc == 1)
     {
-        return command_list_telephone_book_records();
+        return command_list_telephone_book_records_v2(argc, argv);
     }
     
     if (strcmp(argv[1], OPTION_ADD_SHORT) == 0 ||
