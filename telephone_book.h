@@ -80,11 +80,12 @@ int telephone_book_record_list_add_record(telephone_book_record_list* list,
 /*******************************************************************************
 * Removes a telephone book record that has 'id' as its record ID.              *
 * ---                                                                          *
-* Returns a zero value if the appropriate entry was not found, 1 if the entry  *
-* was found and removed, and -1 on error.                                      *
+* Returns NULL if something fails or the list does not contain record with ID  *
+* 'id'.                                                                        *
 *******************************************************************************/
-int telephone_book_record_list_remove_entry(telephone_book_record_list* list,
-                                            int id);
+telephone_book_record*
+telephone_book_record_list_remove_entry(telephone_book_record_list* list,
+                                        int id);
 
 /*******************************************************************************
 * Reconstructs the telephone book record list from a file pointed to by the    *

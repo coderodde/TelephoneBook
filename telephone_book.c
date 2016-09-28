@@ -160,20 +160,22 @@ int telephone_book_record_list_add_record(telephone_book_record_list* list,
 }
 
 /*******************************************************************************
- * Removes a telephone book record that has 'id' as its record ID.              *
- * ---                                                                          *
- * Returns a zero value if the appropriate entry was not found, 1 if the entry  *
- * was found and removed, and -1 on error.                                      *
- *******************************************************************************/
-int telephone_book_record_list_remove_entry(telephone_book_record_list* list,
-                                            int id)
+* Removes a telephone book record that has 'id' as its record ID.              *
+* ---                                                                          *
+* On error or ID mismatch returns NULL. Otherwise the record with the same ID  *
+* (which is removed) is returned.                                              *
+*******************************************************************************/
+telephone_book_record*
+telephone_book_record_list_remove_entry(telephone_book_record_list* list,
+                                        int id)
 {
     telephone_book_record_list_node* current_node;
     telephone_book_record_list_node* next_node;
+    telephone_book_record* removed_record;
     
     if (!list)
     {
-        return -1;
+        return NULL;
     }
     
     current_node = list->head;
@@ -204,15 +206,15 @@ int telephone_book_record_list_remove_entry(telephone_book_record_list* list,
                 list->tail = current_node->prev;
             }
             
-            telephone_book_record_free(current_node->record);
+            removed_record = current_node->record;
             free(current_node);
-            return 1;
+            return removed_record;
         }
         
         current_node = next_node;
     }
     
-    return 0;
+    return NULL;
 }
 
 /*******************************************************************************

@@ -246,9 +246,12 @@ static int command_remove_records(int argc, char* argv[])
     char* file_name;
     FILE* f;
     telephone_book_record_list* record_list;
+    telephone_book_record_list* removed_record_list;
+    telephone_book_record* removed_record;
+    telephone_book_record_list_node* current_node;
+    output_table_strings* table_strings;
     int arg_index;
     int id;
-    size_t number_of_removed_entries;
     
     if (argc < 3)
     {
@@ -287,6 +290,17 @@ static int command_remove_records(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    removed_record_list = telephone_book_record_list_alloc();
+    
+    if (!removed_record_list)
+    {
+        fputs("ERROR: Cannot allocate memory for the list of removed records.",
+              stderr);
+        free(file_name);
+        telephone_book_record_list_free(record_list);
+        return EXIT_FAILURE;
+    }
+    
     /* Even if the following two functions fail, proceed further. */
     telephone_book_record_list_sort(record_list);
     telephone_book_record_list_fix_ids(record_list);
@@ -298,34 +312,71 @@ static int command_remove_records(int argc, char* argv[])
     {
         fputs("ERROR: Cannot open the record book file for writing.", stderr);
         telephone_book_record_list_free(record_list);
+        telephone_book_record_list_free(removed_record_list);
         return EXIT_FAILURE;
     }
     
-    number_of_removed_entries = 0;
-    puts("hello!");
     for (arg_index = 2; arg_index < argc; ++arg_index)
     {
         sscanf(argv[arg_index], "%d", &id);
+        removed_record = telephone_book_record_list_remove_entry(record_list,
+                                                                 id);
         
-        if (telephone_book_record_list_remove_entry(record_list, id) > 0)
+        if (removed_record)
         {
-            number_of_removed_entries++;
+            telephone_book_record_list_add_record(removed_record_list,
+                                                  removed_record);
         }
     }
     
     if (telephone_book_record_list_write_to_file(record_list, f))
     {
         fputs("ERROR: Cannot update the record book file.", stderr);
+        telephone_book_record_list_free(record_list);
+        telephone_book_record_list_free(removed_record_list);
+        fclose(f);
+        return EXIT_FAILURE;
     }
     else
     {
-        printf("Removed %zu out of %d entries.\n",
-               number_of_removed_entries,
-               argc - 2);
+        printf("Number of records to remove: %d, removed: %d.\n",
+               argc - 2,
+               telephone_book_record_list_size(removed_record_list));
+        puts("List of removed entries:");
+        current_node = removed_record_list->head;
+        table_strings = output_table_strings_create(removed_record_list);
+        
+        while (current_node)
+        {
+            if (table_strings)
+            {
+                printf(table_strings->remove_record_format_string,
+                       current_node->record->last_name,
+                       current_node->record->first_name,
+                       current_node->record->telephone_number,
+                       current_node->record->id);
+            }
+            else
+            {
+                printf("%s, %s - %s, ID %d\n",
+                       current_node->record->last_name,
+                       current_node->record->first_name,
+                       current_node->record->telephone_number,
+                       current_node->record->id);
+            }
+            
+            current_node = current_node->next;
+        }
+        
+        if (table_strings)
+        {
+            output_table_strings_free(table_strings);
+        }
     }
     
     fclose(f);
     telephone_book_record_list_free(record_list);
+    telephone_book_record_list_free(removed_record_list);
     return EXIT_SUCCESS;
 }
 
