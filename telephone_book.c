@@ -5,8 +5,7 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MAX_RECORD_TOKEN_LENGTH_STRING "64"
-
-static const size_t MAX_RECORD_TOKEN_LENGTH = 64;
+#define MAX_RECORD_TOKEN_LENGTH 65
 
 /*******************************************************************************
 * Returns the length of the telephone book record list.                        *
@@ -228,9 +227,9 @@ telephone_book_record_list* telephone_book_record_list_read_from_file(FILE* f)
     telephone_book_record_list* record_list;
     telephone_book_record* current_record;
     
-    char last_name_token   [MAX_RECORD_TOKEN_LENGTH + 1];
-    char first_name_token  [MAX_RECORD_TOKEN_LENGTH + 1];
-    char phone_number_token[MAX_RECORD_TOKEN_LENGTH + 1];
+    char last_name_token   [MAX_RECORD_TOKEN_LENGTH];
+    char first_name_token  [MAX_RECORD_TOKEN_LENGTH];
+    char phone_number_token[MAX_RECORD_TOKEN_LENGTH];
     int  id_holder;
     int read_result;
     
