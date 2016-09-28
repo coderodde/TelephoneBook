@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include "telephone_book.h"
 
+/*******************************************************************************
+* This structures holds the string required for neat result output.            *
+*******************************************************************************/
 typedef struct {
     char* title_string;
     char* separator_string;
@@ -29,14 +32,14 @@ output_table_strings*
 output_table_strings_create(telephone_book_record_list* list);
 
 /*******************************************************************************
-* Returns the format string for nifty printing the removed records.            *
-*******************************************************************************/
-char* get_removed_record_output_format_string(telephone_book_record_list* list);
-
-/*******************************************************************************
 * Creates and returns a structure containing all format strings necessary for  *
 * printing the telephone book record list.                                     *
 *******************************************************************************/
 void output_table_strings_free(output_table_strings* output_table_strs);
+
+/*******************************************************************************
+* Returns the format string for nifty printing the removed records.            *
+*******************************************************************************/
+char* get_removed_record_output_format_string(telephone_book_record_list* list);
 
 #endif /* TELEPHONE_BOOK_UTILS_H */

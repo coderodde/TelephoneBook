@@ -41,10 +41,10 @@ telephone_book_record_list_node_alloc(telephone_book_record* record)
 }
 
 /*******************************************************************************
- * Allocates and initializes a new telephone book record.                       *
- * ---                                                                          *
- * Returns a new telephone book record or NULL if something goes wrong.         *
- *******************************************************************************/
+* Allocates and initializes a new telephone book record.                       *
+* ---                                                                          *
+* Returns a new telephone book record or NULL if something goes wrong.         *
+*******************************************************************************/
 telephone_book_record* telephone_book_record_alloc(const char* last_name,
                                                    const char* first_name,
                                                    const char* phone_number,
@@ -71,9 +71,9 @@ telephone_book_record* telephone_book_record_alloc(const char* last_name,
 }
 
 /*******************************************************************************
- * Frees the memory occupied by the telephone book record: all existing fields *
- * and the actual record.                                                      *
- *******************************************************************************/
+* Frees the memory occupied by the telephone book record: all existing fields  *
+* and the actual record.                                                       *
+*******************************************************************************/
 void telephone_book_record_free(telephone_book_record* record)
 {
     if (!record)
@@ -100,11 +100,11 @@ void telephone_book_record_free(telephone_book_record* record)
 }
 
 /*******************************************************************************
- * Allocates and initializes an empty telephone book record list.               *
- * ---                                                                          *
- * Returns a new empty telephone book record list or NULL if something goes     *
- * wrong.                                                                       *
- *******************************************************************************/
+* Allocates and initializes an empty telephone book record list.               *
+* ---                                                                          *
+* Returns a new empty telephone book record list or NULL if something goes     *
+* wrong.                                                                       *
+*******************************************************************************/
 telephone_book_record_list* telephone_book_record_list_alloc()
 {
     telephone_book_record_list* record_list = malloc(sizeof *record_list);
@@ -121,12 +121,12 @@ telephone_book_record_list* telephone_book_record_list_alloc()
 }
 
 /*******************************************************************************
- * Appends the argument telephone book record to the tail of the argument       *
- * telephone book record list.                                                  *
- * ---                                                                          *
- * Returns a zero value if the operation was successfull. A non-zero value is   *
- * returned is something fails.                                                 *
- *******************************************************************************/
+* Appends the argument telephone book record to the tail of the argument       *
+* telephone book record list.                                                  *
+* ---                                                                          *
+* Returns a zero value if the operation was successfull. A non-zero value is   *
+* returned if something fails.                                                 *
+*******************************************************************************/
 int telephone_book_record_list_add_record(telephone_book_record_list* list,
                                           telephone_book_record* record)
 {
@@ -218,23 +218,21 @@ telephone_book_record_list_remove_entry(telephone_book_record_list* list,
 }
 
 /*******************************************************************************
- * Reconstructs the telephone book record list from a file pointed to by the    *
- * argument file handle.                                                        *
- * ---                                                                          *
- * Returns the record list on success, and NULL on failure.                     *
- *******************************************************************************/
+* Reconstructs the telephone book record list from a file pointed to by the    *
+* argument file handle.                                                        *
+* ---                                                                          *
+* Returns the record list on success, and NULL on failure.                     *
+*******************************************************************************/
 telephone_book_record_list* telephone_book_record_list_read_from_file(FILE* f)
 {
     telephone_book_record_list* record_list;
+    telephone_book_record* current_record;
     
     char last_name_token   [MAX_RECORD_TOKEN_LENGTH + 1];
     char first_name_token  [MAX_RECORD_TOKEN_LENGTH + 1];
     char phone_number_token[MAX_RECORD_TOKEN_LENGTH + 1];
     int  id_holder;
-    
     int read_result;
-    
-    telephone_book_record* current_record;
     
     if (!f)
     {
@@ -268,8 +266,9 @@ telephone_book_record_list* telephone_book_record_list_read_from_file(FILE* f)
                                                          id_holder);
             if (!current_record)
             {
-                fputs("Cannot allocate memory for a telephone book record.",
-                      stderr);
+                fputs("ERROR: Cannot allocate memory for a telephone book "
+                      "record.", stderr);
+                telephone_book_record_list_free(record_list);
                 return NULL;
             }
             
@@ -281,11 +280,11 @@ telephone_book_record_list* telephone_book_record_list_read_from_file(FILE* f)
 }
 
 /*******************************************************************************
- * Writes the entire contents of the telephone record list to a specified file  *
- * handle.                                                                      *
- * ---                                                                          *
- * Returns zero on success, and a non-zero value if something fails.            *
- *******************************************************************************/
+* Writes the entire contents of the telephone record list to a specified file  *
+* handle.                                                                      *
+* ---                                                                          *
+* Returns zero on success, and a non-zero value if something fails.            *
+*******************************************************************************/
 int telephone_book_record_list_write_to_file(telephone_book_record_list* list,
                                              FILE* f)
 {
@@ -318,6 +317,14 @@ int telephone_book_record_list_write_to_file(telephone_book_record_list* list,
     return 0;
 }
 
+/*******************************************************************************
+* Defines a telephone book record comparator. The last name of a record is the *
+* primary sorting key, and the first name is the secondary sorting key.        *
+* ---
+* Returns zero, if both the input records have the same last and first name.   *
+* If the first entry should precede the second, a negative value is returned.  *
+* If the second entry should precede the first, a positive value is returned.  *
+*******************************************************************************/
 static int record_cmp(const void* pa, const void* pb)
 {
     int c;
@@ -339,12 +346,12 @@ static int record_cmp(const void* pa, const void* pb)
 }
 
 /*******************************************************************************
- * Sorts the telephone records. The last name of each record is the primary     *
- * sorting key, and the first name of each record is the secondary sorting key. *
- * ---                                                                          *
- * Returns zero on success, and a non-zero value if the sorting could not be    *
- * completed.                                                                   *
- *******************************************************************************/
+* Sorts the telephone records. The last name of each record is the primary     *
+* sorting key, and the first name of each record is the secondary sorting key. *
+* ---                                                                          *
+* Returns zero on success, and a non-zero value if the sorting could not be    *
+* completed.                                                                   *
+*******************************************************************************/
 int telephone_book_record_list_sort(telephone_book_record_list* list)
 {
     telephone_book_record_list_node** array;
@@ -407,10 +414,10 @@ int telephone_book_record_list_sort(telephone_book_record_list* list)
 }
 
 /*******************************************************************************
- * Makes sure that each telephone book record has an unique ID.                 *
- * ---                                                                          *
- * Returns zero on success, and a non-zero value if something fails.            *
- *******************************************************************************/
+* Makes sure that each telephone book record has an unique ID.                 *
+* ---                                                                          *
+* Returns zero on success, and a non-zero value if something fails.            *
+*******************************************************************************/
 int telephone_book_record_list_fix_ids(telephone_book_record_list* list)
 {
     int id;
@@ -422,7 +429,6 @@ int telephone_book_record_list_fix_ids(telephone_book_record_list* list)
     }
     
     id = 0;
-    
     current_node = list->head;
     
     while (current_node)
@@ -435,8 +441,8 @@ int telephone_book_record_list_fix_ids(telephone_book_record_list* list)
 }
 
 /*******************************************************************************
- * Frees all the memory occupied by the argument telephone book record list.    *
- *******************************************************************************/
+* Frees all the memory occupied by the argument telephone book record list.    *
+*******************************************************************************/
 void telephone_book_record_list_free(telephone_book_record_list* list)
 {
     telephone_book_record_list_node* current_node;

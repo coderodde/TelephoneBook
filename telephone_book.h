@@ -10,7 +10,7 @@ typedef struct {
     char* first_name;
     char* last_name;
     char* telephone_number;
-    int         id;
+    int id;
 } telephone_book_record;
 
 /*******************************************************************************
@@ -51,8 +51,8 @@ telephone_book_record* telephone_book_record_alloc(const char* last_name,
                                                    int id);
 
 /*******************************************************************************
-* Frees the memory occupied by the telephone book record: all existing fields *
-* and the actual record.                                                      *
+* Frees the memory occupied by the telephone book record: all existing fields  *
+* and the actual record.                                                       *
 *******************************************************************************/
 void telephone_book_record_free(telephone_book_record* record);
 
@@ -72,16 +72,16 @@ telephone_book_record_list* telephone_book_record_list_alloc();
 * telephone book record list.                                                  *
 * ---                                                                          *
 * Returns a zero value if the operation was successfull. A non-zero value is   *
-* returned is something fails.                                                 *
+* returned if something fails.                                                 *
 *******************************************************************************/
 int telephone_book_record_list_add_record(telephone_book_record_list* list,
                                           telephone_book_record* record);
 
 /*******************************************************************************
-* Removes a telephone book record that has 'id' as its record ID.              *
+* Removes and returns the telephone book record that has 'id' as its record ID.*
 * ---                                                                          *
 * Returns NULL if something fails or the list does not contain record with ID  *
-* 'id'.                                                                        *
+* 'id'. Otherwise, a removed record is returned.                               *
 *******************************************************************************/
 telephone_book_record*
 telephone_book_record_list_remove_entry(telephone_book_record_list* list,
@@ -114,7 +114,7 @@ int telephone_book_record_list_write_to_file(telephone_book_record_list* list,
 int telephone_book_record_list_sort(telephone_book_record_list* list);
 
 /*******************************************************************************
-* Makes sure that each telephone book record has an unique ID.                 *
+* Makes sure that each telephone book record has a unique ID.                  *
 * ---                                                                          *
 * Returns zero on success, and a non-zero value if something fails.            *
 *******************************************************************************/

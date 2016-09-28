@@ -13,7 +13,7 @@ static const char* TITLE_TELEPHONE_NUMBER   = "Telephone number";
 static const char* TITLE_CONTACT_ID         = "ID";
 
 static const size_t ID_HOLDER_STRING_CAPACITY = 40;
-static const size_t FORMAT_STRING_CAPACITY = 100;
+static const size_t FORMAT_STRING_CAPACITY    = 100;
 
 /*******************************************************************************
 * Returns the character representing a path separator character ('/' or '\')   *
@@ -69,8 +69,8 @@ char* get_telephone_record_book_file_path()
 
 
 /*******************************************************************************
- * Allocates and sets a row separator string.                                   *
- *******************************************************************************/
+* Allocates and sets a row separator string.                                   *
+*******************************************************************************/
 char* load_separator_string(size_t max_last_name_token_length,
                             size_t max_first_name_token_length,
                             size_t max_telephone_number_token_length,
@@ -84,6 +84,13 @@ char* load_separator_string(size_t max_last_name_token_length,
            (max_first_name_token_length + 2) +
            (max_telephone_number_token_length + 2) +
            (max_telephone_contact_id_length + 1) + 4);
+    
+    if (!separator_string)
+    {
+        fputs("ERROR: Cannot allocate memory for the row separator string.",
+              stderr);
+        return NULL;
+    }
     
     for (i = 0; i != max_last_name_token_length + 1; ++i)
     {
@@ -117,6 +124,10 @@ char* load_separator_string(size_t max_last_name_token_length,
     return separator_string;
 }
 
+/*******************************************************************************
+* Creates and returns a structure containing all format strings necessary for  *
+* printing the telephone book record list.                                     *
+*******************************************************************************/
 output_table_strings*
 output_table_strings_create(telephone_book_record_list* list)
 {
@@ -141,20 +152,28 @@ output_table_strings_create(telephone_book_record_list* list)
     telephone_book_record_list_node* current_node;
     telephone_book_record* current_record;
     
+    if (!list)
+    {
+        return NULL;
+    }
+    
+    /* ALLOCATED: output_table */
     output_table = malloc(sizeof *output_table);
     
     if (!output_table)
     {
-        fputs("Cannot allocate memory for the output format structures.",
+        fputs("ERROR: Cannot allocate memory for the output format structures.",
               stderr);
         return NULL;
     }
     
+    /* ALLOCATED: output_table, id_holder_string */
     id_holder_string = malloc(ID_HOLDER_STRING_CAPACITY);
     
     if (!id_holder_string)
     {
-        fputs("Cannot allocate memory for the ID field holder.", stderr);
+        fputs("ERROR: Cannot allocate memory for the ID field holder.", stderr);
+        free(output_table);
         return NULL;
     }
     
@@ -179,8 +198,8 @@ output_table_strings_create(telephone_book_record_list* list)
                                           first_name_token_length);
         
         max_telephone_number_token_length =
-        MAX(max_telephone_number_token_length,
-            telephone_number_token_length);
+            MAX(max_telephone_number_token_length,
+                telephone_number_token_length);
         
         max_telephone_contact_id_length = MAX(max_telephone_contact_id_length,
                                               telephone_contact_id_length);
@@ -188,11 +207,16 @@ output_table_strings_create(telephone_book_record_list* list)
         current_node = current_node->next;
     }
     
+    /* ALLOCATED: output_table */
+    free(id_holder_string);
+    
+    /* ALLOCATED: output_table, record_format_string */
     record_format_string = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
     
     if (!record_format_string)
     {
-        fputs("Cannot allocate memory for the format string.", stderr);
+        fputs("ERROR: Cannot allocate memory for the format string.", stderr);
+        free(output_table);
         return NULL;
     }
     
@@ -203,21 +227,34 @@ output_table_strings_create(telephone_book_record_list* list)
             max_telephone_number_token_length,
             max_telephone_contact_id_length);
     
-    free(id_holder_string);
-    
+    /* @ALLOC: output_table, record_format_string, title_string */
     title_string =
-    malloc(sizeof(char) *
-           (max_last_name_token_length + 1) +
-           (max_first_name_token_length + 2) +
-           (max_telephone_number_token_length + 2) +
-           (max_telephone_contact_id_length + 1) + 5);
+        malloc(sizeof(char) *
+               (max_last_name_token_length + 1) +
+               (max_first_name_token_length + 2) +
+               (max_telephone_number_token_length + 2) +
+               (max_telephone_contact_id_length + 1) + 4);
     
+    if (!title_string)
+    {
+        fputs("ERROR: Cannot allocate memory for the title string.", stderr);
+        free(output_table);
+        free(record_format_string);
+        return NULL;
+    }
+    
+    /* ALLOCATED: output_table, record_format_string,
+                  title_string, title_string_format */
     title_string_format = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
     
     if (!title_string_format)
     {
-        fputs("Cannot allocate memory for the title string format.", stderr);
-        exit(EXIT_FAILURE);
+        fputs("ERROR: Cannot allocate memory for the title string format.",
+              stderr);
+        free(output_table);
+        free(record_format_string);
+        free(title_string);
+        return NULL;
     }
     
     sprintf(title_string_format,
@@ -234,19 +271,24 @@ output_table_strings_create(telephone_book_record_list* list)
             TITLE_TELEPHONE_NUMBER,
             TITLE_CONTACT_ID);
     
-    separator_string =
-    malloc(sizeof(char) *
-           (max_last_name_token_length + 1) +
-           (max_first_name_token_length + 2) +
-           (max_telephone_number_token_length + 2) +
-           (max_telephone_contact_id_length + 1) +
-           5);
+    /* @ALLOC: output_table, record_format_string, title_string */
+    free(title_string_format);
     
     separator_string =
-    load_separator_string(max_last_name_token_length,
-                          max_first_name_token_length,
-                          max_telephone_number_token_length,
-                          max_telephone_contact_id_length);
+        load_separator_string(max_last_name_token_length,
+                              max_first_name_token_length,
+                              max_telephone_number_token_length,
+                              max_telephone_contact_id_length);
+    
+    if (!separator_string)
+    {
+        fputs("ERROR: Cannot allocate memory for the separator string.",
+              stderr);
+        free(output_table);
+        free(record_format_string);
+        free(title_string);
+        return NULL;
+    }
     
     output_table->title_string = title_string;
     output_table->separator_string = separator_string;
@@ -256,8 +298,7 @@ output_table_strings_create(telephone_book_record_list* list)
 }
 
 /*******************************************************************************
-* Creates and returns a structure containing all format strings necessary for  *
-* printing the telephone book record list.                                     *
+* Frees all the memory alloated by the output table format strings.            *
 *******************************************************************************/
 void output_table_strings_free(output_table_strings* output_table_strs)
 {
@@ -299,8 +340,10 @@ char* get_removed_record_output_format_string(telephone_book_record_list* list)
     size_t telephone_number_token_length;
     size_t telephone_contact_id_length;
     
-    char* id_holder_string;
+    /* ALLOCATED: format_string */
     char* format_string = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
+    char* id_holder_string;
+    
     telephone_book_record_list_node* current_node;
     telephone_book_record* current_record;
     
@@ -310,6 +353,7 @@ char* get_removed_record_output_format_string(telephone_book_record_list* list)
         return NULL;
     }
     
+    /* ALLOCATED: format_string, id_holder_string */
     id_holder_string = malloc(ID_HOLDER_STRING_CAPACITY);
     
     if (!id_holder_string)
@@ -354,5 +398,7 @@ char* get_removed_record_output_format_string(telephone_book_record_list* list)
             max_telephone_number_token_length,
             max_telephone_contact_id_length);
     
+    /* ALLOCATED: format_string */
+    free(id_holder_string);
     return format_string;
 }
