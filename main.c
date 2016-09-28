@@ -11,6 +11,9 @@ static const char* OPTION_ADD_LONG  = "--add";
 static const char* OPTION_REMOVE_SHORT = "-r";
 static const char* OPTION_REMOVE_LONG  = "--remove";
 
+static const char* OPTION_HELP_SHORT = "-h";
+static const char* OPTION_HELP_LONG  = "--help";
+
 static const size_t RECORDS_PER_BLOCK = 3;
 
 static size_t min3(size_t a, size_t b, size_t c)
@@ -548,6 +551,13 @@ int main(int argc, char* argv[]) {
     if (argc == 1)
     {
         return command_list_telephone_book_records_v2(argc, argv);
+    }
+    
+    if (strcmp(argv[1], OPTION_HELP_SHORT) == 0 ||
+        strcmp(argv[1], OPTION_HELP_LONG) == 0)
+    {
+        print_help(argv[0]);
+        return EXIT_SUCCESS;
     }
     
     if (strcmp(argv[1], OPTION_ADD_SHORT) == 0 ||
