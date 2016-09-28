@@ -1,4 +1,4 @@
-#include "telephone_record.h"
+#include "telephone_book.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,11 +8,13 @@
 
 static const size_t MAX_RECORD_TOKEN_LENGTH = 64;
 
-typedef struct telephone_book_record_list_node {
-    telephone_book_record* record;
-    struct telephone_book_record_list_node* next;
-    struct telephone_book_record_list_node* prev;
-} telephone_book_record_list_node;
+/*******************************************************************************
+* Returns the length of the telephone book record list.                        *
+*******************************************************************************/
+int telephone_book_record_list_size(telephone_book_record_list* list)
+{
+    return list ? list->size : -1;
+}
 
 static telephone_book_record_list_node*
 telephone_book_record_list_node_alloc(telephone_book_record* record)
@@ -46,16 +48,56 @@ telephone_book_record_list_node_alloc(telephone_book_record* record)
 telephone_book_record* telephone_book_record_alloc(const char* last_name,
                                                    const char* first_name,
                                                    const char* phone_number,
-                                                   int id);
+                                                   int id)
+{
+    telephone_book_record* record = malloc(sizeof *record);
+    
+    if (!record)
+    {
+        return NULL;
+    }
+    
+    record->last_name        = malloc(sizeof(char) * (strlen(last_name) + 1));
+    record->first_name       = malloc(sizeof(char) * (strlen(first_name) + 1));
+    record->telephone_number = malloc(sizeof(char) *
+                                      (strlen(phone_number) + 1));
+    record->id = id;
+    
+    strcpy(record->last_name, last_name);
+    strcpy(record->first_name, first_name);
+    strcpy(record->telephone_number, phone_number);
+    
+    return record;
+}
 
 /*******************************************************************************
  * Frees the memory occupied by the telephone book record: all existing fields *
  * and the actual record.                                                      *
  *******************************************************************************/
-void telephone_book_record_free(telephone_book_record* record);
-
-
-
+void telephone_book_record_free(telephone_book_record* record)
+{
+    if (!record)
+    {
+        return;
+    }
+    
+    if (record->first_name)
+    {
+        free(record->first_name);
+    }
+    
+    if (record->last_name)
+    {
+        free(record->last_name);
+    }
+    
+    if (record->telephone_number)
+    {
+        free(record->telephone_number);
+    }
+    
+    free(record);
+}
 
 /*******************************************************************************
  * Allocates and initializes an empty telephone book record list.               *

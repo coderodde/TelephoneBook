@@ -14,6 +14,16 @@ typedef struct {
 } telephone_book_record;
 
 /*******************************************************************************
+* This structure defines a linked list node for the telephone book record      *
+* list.                                                                        *
+*******************************************************************************/
+typedef struct telephone_book_record_list_node {
+    telephone_book_record* record;
+    struct telephone_book_record_list_node* next;
+    struct telephone_book_record_list_node* prev;
+} telephone_book_record_list_node;
+
+/*******************************************************************************
 * This structure holds a doubly-linked list of telephone book records.         *
 *******************************************************************************/
 typedef struct {
@@ -24,6 +34,11 @@ typedef struct {
 
 
 
+
+/*******************************************************************************
+* Returns the length of the telephone book record list.                        *
+*******************************************************************************/
+int telephone_book_record_list_size(telephone_book_record_list* list);
 
 /*******************************************************************************
 * Allocates and initializes a new telephone book record.                       *
