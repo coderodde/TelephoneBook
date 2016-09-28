@@ -16,6 +16,9 @@ static const char* OPTION_HELP_LONG  = "--help";
 
 static const size_t RECORDS_PER_BLOCK = 3;
 
+/*******************************************************************************
+* Returns the smallest of 'a', 'b', and 'c'.                                   *
+*******************************************************************************/
 static size_t min3(size_t a, size_t b, size_t c)
 {
     if (a < b)
@@ -37,6 +40,9 @@ static size_t min3(size_t a, size_t b, size_t c)
     return b;
 }
 
+/*******************************************************************************
+* Prints the help message to the standard output.                              *
+*******************************************************************************/
 static void print_help(char* executable_name)
 {
     char path_separator = separator();
@@ -74,6 +80,9 @@ static void print_help(char* executable_name)
          "entries");
 }
 
+/*******************************************************************************
+* Implements the Levenshtein distance algorithm.                               *
+*******************************************************************************/
 static size_t edit_distance(char* word1,
                             char* word2,
                             size_t length1,
@@ -99,11 +108,17 @@ static size_t edit_distance(char* word1,
                 edit_distance(word1, word2, length1 - 1, length2 - 1) + cost);
 }
 
+/*******************************************************************************
+* Computes the Levenshtein disance between words 'word1' and 'word2'.          *
+*******************************************************************************/
 static size_t compute_edit_distance(char* word1, char* word2)
 {
     return edit_distance(word1, word2, strlen(word1), strlen(word2));
 }
 
+/*******************************************************************************
+* Implements listing the telephone book records.                               *
+*******************************************************************************/
 int command_list_telephone_book_records_impl(
                         telephone_book_record_list* record_list,
                         char* last_name,
@@ -240,6 +255,9 @@ int command_list_telephone_book_records_impl(
     return EXIT_SUCCESS;
 }
 
+/*******************************************************************************
+* Handles the command for listing the records.                                 *
+*******************************************************************************/
 static int command_list_telephone_book_records_v2(int argc, char* argv[])
 {
     char* file_name;
@@ -320,6 +338,9 @@ static int command_list_telephone_book_records_v2(int argc, char* argv[])
                                                     first_name);
 }
 
+/*******************************************************************************
+* Handles the command for adding a new record.                                 *
+*******************************************************************************/
 static int command_add_record(int argc, char* argv[])
 {
     char* file_name;
@@ -407,6 +428,9 @@ static int command_add_record(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
+/*******************************************************************************
+* Handles the commmand for removing records by their IDs.                      *
+*******************************************************************************/ 
 static int command_remove_records(int argc, char* argv[])
 {
     char* file_name;
