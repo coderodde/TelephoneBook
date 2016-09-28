@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +58,7 @@ static void print_help(char* executable_name)
     puts("");
     printf("(1)    %s\n",                      executable_name);
     printf("(2)    %s LAST_EXPR\n",            executable_name);
-    printf("(3)    %s * FIRST_EXPR\n",         executable_name);
+    printf("(3)    %s - FIRST_EXPR\n",         executable_name);
     printf("(4)    %s LAST_EXPR FIRST_EXPR\n", executable_name);
     puts("");
     puts("Where: -a or --add for adding one new book entry.");
@@ -192,7 +193,8 @@ static size_t edit_distance(char* word1,
         return length1;
     }
     
-    cost = word1[length1 - 1] == word2[length2 - 1] ? 0 : 1;
+    cost = tolower(word1[length1 - 1]) ==
+           tolower(word2[length2 - 1]) ? 0 : 1;
     
     return min3(edit_distance(word1, word2, length1, length2 - 1) + 1,
                 edit_distance(word1, word2, length1 - 1, length2) + 1,
@@ -408,6 +410,12 @@ static int command_list_telephone_book_records_v2(int argc, char* argv[])
     
     last_name  = argc >= 2 ? argv[1] : NULL;
     first_name = argc >= 3 ? argv[2] : NULL;
+    
+    if (strcmp(argv[1], "-") == 0)
+    {
+        /* Match all last names: */
+        last_name = NULL;
+    }
     
     return command_list_telephone_book_records_impl(record_list,
                                                     last_name,
