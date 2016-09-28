@@ -249,7 +249,7 @@ static int command_remove_records(int argc, char* argv[])
     telephone_book_record_list* removed_record_list;
     telephone_book_record* removed_record;
     telephone_book_record_list_node* current_node;
-    output_table_strings* table_strings;
+    char* removed_record_format;
     int arg_index;
     int id;
     
@@ -337,44 +337,45 @@ static int command_remove_records(int argc, char* argv[])
         fclose(f);
         return EXIT_FAILURE;
     }
-    else
-    {
-        printf("Number of records to remove: %d, removed: %d.\n",
-               argc - 2,
-               telephone_book_record_list_size(removed_record_list));
-        puts("List of removed entries:");
-        current_node = removed_record_list->head;
-        table_strings = output_table_strings_create(removed_record_list);
-        
-        while (current_node)
-        {
-            if (table_strings)
-            {
-                printf(table_strings->remove_record_format_string,
-                       current_node->record->last_name,
-                       current_node->record->first_name,
-                       current_node->record->telephone_number,
-                       current_node->record->id);
-            }
-            else
-            {
-                printf("%s, %s - %s, ID %d\n",
-                       current_node->record->last_name,
-                       current_node->record->first_name,
-                       current_node->record->telephone_number,
-                       current_node->record->id);
-            }
-            
-            current_node = current_node->next;
-        }
-        
-        if (table_strings)
-        {
-            output_table_strings_free(table_strings);
-        }
-    }
     
     fclose(f);
+    
+    printf("Number of records to remove: %d, removed: %d.\n",
+           argc - 2,
+           telephone_book_record_list_size(removed_record_list));
+    puts("List of removed entries:");
+    current_node = removed_record_list->head;
+    removed_record_format =
+        get_removed_record_output_format_string(removed_record_list);
+    
+    while (current_node)
+    {
+        if (removed_record_format)
+        {
+            printf(removed_record_format,
+                   current_node->record->last_name,
+                   current_node->record->first_name,
+                   current_node->record->telephone_number,
+                   current_node->record->id);
+        }
+        else
+        {
+            /* Fallback format output: */
+            printf("%s, %s - %s, ID %d\n",
+                   current_node->record->last_name,
+                   current_node->record->first_name,
+                   current_node->record->telephone_number,
+                   current_node->record->id);
+        }
+        
+        current_node = current_node->next;
+    }
+    
+    if (removed_record_format)
+    {
+        free(removed_record_format);
+    }
+    
     telephone_book_record_list_free(record_list);
     telephone_book_record_list_free(removed_record_list);
     return EXIT_SUCCESS;

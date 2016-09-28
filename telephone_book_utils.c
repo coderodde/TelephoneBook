@@ -133,7 +133,6 @@ output_table_strings_create(telephone_book_record_list* list)
     output_table_strings* output_table;
     
     char* record_format_string;
-    char* remove_record_format_string;
     char* title_string;
     char* separator_string;
     char* id_holder_string;
@@ -204,21 +203,6 @@ output_table_strings_create(telephone_book_record_list* list)
             max_telephone_number_token_length,
             max_telephone_contact_id_length);
     
-    remove_record_format_string = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
-    
-    if (!remove_record_format_string)
-    {
-        fputs("Cannot allocate memory for the remove format string.", stderr);
-        return NULL;
-    }
-    
-    sprintf(remove_record_format_string,
-            "%%-%zus %%-%zus %%-%zus %%-%zuzu\n",
-            max_last_name_token_length,
-            max_first_name_token_length,
-            max_telephone_number_token_length,
-            max_telephone_contact_id_length);
-    
     free(id_holder_string);
     
     title_string =
@@ -267,7 +251,6 @@ output_table_strings_create(telephone_book_record_list* list)
     output_table->title_string = title_string;
     output_table->separator_string = separator_string;
     output_table->record_format_string = record_format_string;
-    output_table->remove_record_format_string = remove_record_format_string;
     
     return output_table;
 }
@@ -298,10 +281,78 @@ void output_table_strings_free(output_table_strings* output_table_strs)
         free(output_table_strs->title_string);
     }
     
-    if (output_table_strs->remove_record_format_string)
+    free(output_table_strs);
+}
+
+/*******************************************************************************
+* Returns the format string for nifty printing the removed records.            *
+*******************************************************************************/
+char* get_removed_record_output_format_string(telephone_book_record_list* list)
+{
+    size_t max_last_name_token_length        = 0;
+    size_t max_first_name_token_length       = 0;
+    size_t max_telephone_number_token_length = 0;
+    size_t max_telephone_contact_id_length   = 0;
+    
+    size_t last_name_token_length;
+    size_t first_name_token_length;
+    size_t telephone_number_token_length;
+    size_t telephone_contact_id_length;
+    
+    char* id_holder_string;
+    char* format_string = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
+    telephone_book_record_list_node* current_node;
+    telephone_book_record* current_record;
+    
+    if (!format_string)
     {
-        free(output_table_strs->remove_record_format_string);
+        fputs("ERROR: Cannot allocate memory for the format string.", stderr);
+        return NULL;
     }
     
-    free(output_table_strs);
+    id_holder_string = malloc(ID_HOLDER_STRING_CAPACITY);
+    
+    if (!id_holder_string)
+    {
+        fputs("ERROR: Cannot allocate memory for the ID field holder.", stderr);
+        return NULL;
+    }
+    
+    current_node = list->head;
+    
+    while (current_node)
+    {
+        current_record = current_node->record;
+        
+        last_name_token_length  = strlen(current_record->last_name);
+        first_name_token_length = strlen(current_record->first_name);
+        telephone_number_token_length =
+                                  strlen(current_record->telephone_number);
+        
+        sprintf(id_holder_string, "%d", current_record->id);
+        telephone_contact_id_length = strlen(id_holder_string);
+        
+        max_last_name_token_length = MAX(max_last_name_token_length,
+                                         last_name_token_length);
+        
+        max_first_name_token_length = MAX(max_first_name_token_length,
+                                          first_name_token_length);
+        
+        max_telephone_number_token_length =
+        MAX(max_telephone_number_token_length,
+            telephone_number_token_length);
+        
+        max_telephone_contact_id_length = MAX(max_telephone_contact_id_length,
+                                              telephone_contact_id_length);
+        current_node = current_node->next;
+    }
+    
+    sprintf(format_string,
+            "%%-%zus %%-%zus %%-%zus %%-%zuzu\n",
+            max_last_name_token_length,
+            max_first_name_token_length,
+            max_telephone_number_token_length,
+            max_telephone_contact_id_length);
+    
+    return format_string;
 }
