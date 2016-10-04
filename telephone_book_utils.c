@@ -215,6 +215,8 @@ output_table_strings_create(telephone_book_record_list* list)
         return NULL;
     }
     
+    /* This is really ad hoc, yet we want to keep the listing code as simple 
+       as possible, so we opt to do the format magic in this routine. */
     sprintf(record_format_string,
             "%%-%zus | %%-%zus | %%-%zus | %%-%zuzu\n",
             max_last_name_token_length,
@@ -246,55 +248,8 @@ output_table_strings_create(telephone_book_record_list* list)
             (int) max_telephone_contact_id_length,
             TITLE_CONTACT_ID);
     
-    /* ALLOCATED: output_table, record_format_string,
-                  title_string, title_string_format */
-    /*title_string_format = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
-    
-    if (!title_string_format)
-    {
-        free(output_table);
-        free(record_format_string);
-        free(title_string);
-        return NULL;
-    }*/
-    /*
-    sprintf(title_string_format,
-            "%.*s | %.*s | %.*s | %-zu",
-            max_last_name_token_length,
-            max_first_name_token_length,
-            max_telephone_number_token_length,
-            max_telephone_contact_id_length);*/
-    /*
-    sprintf(title_string_format,
-            "%%-%zus | %%-%zus | %%-%zus | %%-%zus",
-            max_last_name_token_length,
-            max_first_name_token_length,
-            max_telephone_number_token_length,
-            max_telephone_contact_id_length);
-    */
-    /*
-    sprintf(title_string,
-            title_string_format,
-            TITLE_LAST_NAME,
-            TITLE_FIRST_NAME,
-            TITLE_TELEPHONE_NUMBER,
-            TITLE_CONTACT_ID);
-    */
-    /*
-    sprintf(title_string,
-            "%.*s | %.*s | %.*s | %.*s",
-            (int) max_last_name_token_length,
-            TITLE_LAST_NAME,
-            (int) max_first_name_token_length,
-            TITLE_FIRST_NAME,
-            (int) max_telephone_number_token_length,
-            TITLE_TELEPHONE_NUMBER,
-            (int) max_telephone_contact_id_length,
-            TITLE_CONTACT_ID);*/
-    
-    /* ALLOCATED: output_table, record_format_string, title_string */
-    //free(title_string_format);
-    
+    /* @ALLOC: output_table, record_format_string, title_string, 
+               separator_string*/
     separator_string =
         load_separator_string(max_last_name_token_length,
                               max_first_name_token_length,
