@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include "telephone_book.h"
 
+#ifdef _WIN32
+#define PATH_SEPARATOR '\\'
+#else
+#define PATH_SEPARATOR '/'
+#endif
+
 /*******************************************************************************
 * This structures holds the string required for neat result output.            *
 *******************************************************************************/
@@ -13,11 +19,8 @@ typedef struct {
     char* record_format_string;
 } output_table_strings;
 
-/*******************************************************************************
-* Returns the character representing a path separator character ('/' or '\')   *
-* used on the current platform.                                                *
-*******************************************************************************/
-char separator();
+
+
 
 /*******************************************************************************
 * Returns a C string representing the full path to the telephone book record   *

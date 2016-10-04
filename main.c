@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "telephone_book.h"
+#include "telephone_book_io.h"
 #include "telephone_book_utils.h"
 
 static const char* OPTION_ADD_SHORT = "-a";
@@ -45,7 +46,7 @@ static size_t min3(size_t a, size_t b, size_t c)
 *******************************************************************************/
 static void print_help(char* executable_name)
 {
-    char path_separator = separator();
+    char path_separator = PATH_SEPARATOR;
     int executable_name_length = (int) strlen(executable_name);
     int i;
     
