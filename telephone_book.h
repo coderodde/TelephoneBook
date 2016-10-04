@@ -1,8 +1,6 @@
 #ifndef TELEPHONE_BOOK_H
 #define TELEPHONE_BOOK_H
 
-#include <stdio.h>
-
 /*******************************************************************************
 * This structure holds a single telephone book record.                         *
 *******************************************************************************/

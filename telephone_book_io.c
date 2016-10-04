@@ -1,4 +1,5 @@
 #include "telephone_book_io.h"
+#include <stdio.h>
 
 #define MAX_RECORD_TOKEN_LENGTH_STRING "64"
 #define MAX_RECORD_TOKEN_LENGTH 65

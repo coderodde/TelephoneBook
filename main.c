@@ -1,10 +1,10 @@
+#include "telephone_book.h"
+#include "telephone_book_io.h"
+#include "telephone_book_utils.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "telephone_book.h"
-#include "telephone_book_io.h"
-#include "telephone_book_utils.h"
 
 static const char* OPTION_ADD_SHORT = "-a";
 static const char* OPTION_ADD_LONG  = "--add";
