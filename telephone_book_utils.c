@@ -138,11 +138,15 @@ output_table_strings_create(telephone_book_record_list* list)
     
     output_table_strings* output_table;
     
+    /* The format string used to output the actual telephone book records. */
     char* record_format_string;
+    
+    /* The title string. */
     char* title_string;
+    
+    /* The separating horizontal bar. */
     char* separator_string;
     char* id_holder_string;
-    char* title_string_format;
     
     telephone_book_record_list_node* current_node;
     telephone_book_record* current_record;
@@ -203,7 +207,7 @@ output_table_strings_create(telephone_book_record_list* list)
     free(id_holder_string);
     
     /* ALLOCATED: output_table, record_format_string */
-    record_format_string = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
+    record_format_string = malloc(FORMAT_STRING_CAPACITY);
     
     if (!record_format_string)
     {
@@ -219,12 +223,10 @@ output_table_strings_create(telephone_book_record_list* list)
             max_telephone_contact_id_length);
     
     /* @ALLOC: output_table, record_format_string, title_string */
-    title_string =
-        malloc(sizeof(char) *
-               (max_last_name_token_length + 1) +
-               (max_first_name_token_length + 2) +
-               (max_telephone_number_token_length + 2) +
-               (max_telephone_contact_id_length + 1) + 4);
+    title_string = malloc((max_last_name_token_length + 1) +
+                          (max_first_name_token_length + 2) +
+                          (max_telephone_number_token_length + 2) +
+                          (max_telephone_contact_id_length + 1) + 4);
     
     if (!title_string)
     {
@@ -233,9 +235,20 @@ output_table_strings_create(telephone_book_record_list* list)
         return NULL;
     }
     
+    sprintf(title_string,
+            "%-*s | %-*s | %-*s | %-*s",
+            (int) max_last_name_token_length,
+            TITLE_LAST_NAME,
+            (int) max_first_name_token_length,
+            TITLE_FIRST_NAME,
+            (int) max_telephone_number_token_length,
+            TITLE_TELEPHONE_NUMBER,
+            (int) max_telephone_contact_id_length,
+            TITLE_CONTACT_ID);
+    
     /* ALLOCATED: output_table, record_format_string,
                   title_string, title_string_format */
-    title_string_format = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
+    /*title_string_format = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
     
     if (!title_string_format)
     {
@@ -243,7 +256,7 @@ output_table_strings_create(telephone_book_record_list* list)
         free(record_format_string);
         free(title_string);
         return NULL;
-    }
+    }*/
     /*
     sprintf(title_string_format,
             "%.*s | %.*s | %.*s | %-zu",
@@ -267,9 +280,9 @@ output_table_strings_create(telephone_book_record_list* list)
             TITLE_TELEPHONE_NUMBER,
             TITLE_CONTACT_ID);
     */
-    
+    /*
     sprintf(title_string,
-            "%.*s | %.*s | %.*s | %-zu",
+            "%.*s | %.*s | %.*s | %.*s",
             (int) max_last_name_token_length,
             TITLE_LAST_NAME,
             (int) max_first_name_token_length,
@@ -277,10 +290,10 @@ output_table_strings_create(telephone_book_record_list* list)
             (int) max_telephone_number_token_length,
             TITLE_TELEPHONE_NUMBER,
             (int) max_telephone_contact_id_length,
-            TITLE_CONTACT_ID);
+            TITLE_CONTACT_ID);*/
     
     /* ALLOCATED: output_table, record_format_string, title_string */
-    free(title_string_format);
+    //free(title_string_format);
     
     separator_string =
         load_separator_string(max_last_name_token_length,

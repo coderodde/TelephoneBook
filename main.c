@@ -415,6 +415,7 @@ static int command_add_record(int argc, char* argv[])
         fputs("ERROR: Cannot open the record book file.", stderr);
         /* 'record' is contained in 'record_list' so is freed by it: */
         telephone_book_record_list_free(record_list);
+        telephone_book_record_free(record);
         return EXIT_FAILURE;
     }
     
