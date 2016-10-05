@@ -18,7 +18,6 @@ typedef struct {
 typedef struct telephone_book_record_list_node {
     telephone_book_record* record;
     struct telephone_book_record_list_node* next;
-    struct telephone_book_record_list_node* prev;
 } telephone_book_record_list_node;
 
 /*******************************************************************************

@@ -515,7 +515,12 @@ static int command_remove_records(int argc, char* argv[])
     
     for (arg_index = 2; arg_index < argc; ++arg_index)
     {
-        sscanf(argv[arg_index], "%d", &id);
+        if (sscanf(argv[arg_index], "%d", &id) != 1)
+        {
+            printf("[WARNING] Bad ID = \'%s\'. Ignored.\n", argv[arg_index]);
+            continue;
+        }
+        
         removed_record = telephone_book_record_list_remove_entry(record_list,
                                                                  id);
         
@@ -537,10 +542,19 @@ static int command_remove_records(int argc, char* argv[])
     
     fclose(f);
     
-    printf("Number of records to remove: %d, removed: %d.\n",
+    printf("[INFO] Number of records to remove: %d, removed: %d.\n",
            argc - 2,
            telephone_book_record_list_size(removed_record_list));
-    puts("List of removed entries:");
+    
+    if (telephone_book_record_list_size(removed_record_list) == 0)
+    {
+        puts("[INFO] Nothing to remove.");
+        telephone_book_record_list_free(removed_record_list);
+        telephone_book_record_list_free(record_list);
+        return EXIT_SUCCESS;
+    }
+    
+    puts("[INFO] List of removed entries:");
     current_node = removed_record_list->head;
     removed_record_format =
         get_removed_record_output_format_string(removed_record_list);
@@ -568,11 +582,7 @@ static int command_remove_records(int argc, char* argv[])
         current_node = current_node->next;
     }
     
-    if (removed_record_format)
-    {
-        free(removed_record_format);
-    }
-    
+    free(removed_record_format);
     telephone_book_record_list_free(record_list);
     telephone_book_record_list_free(removed_record_list);
     return EXIT_SUCCESS;

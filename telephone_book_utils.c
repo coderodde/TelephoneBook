@@ -16,9 +16,10 @@ static const size_t ID_HOLDER_STRING_CAPACITY = 40;
 static const size_t FORMAT_STRING_CAPACITY    = 100;
 
 /*******************************************************************************
-* Returns a C string representing the full path to the telephone book record   *
-* file.                                                                        *
+* Documentation comments may be found in telephone_book_utils.h                *
 *******************************************************************************/
+
+
 char* get_telephone_record_book_file_path()
 {
     char* home_directory;
@@ -36,9 +37,11 @@ char* get_telephone_record_book_file_path()
     
     /* Allocate the space for the entire */
     telephone_record_book_file_path =
-    malloc(sizeof(char)
-            * (home_directory_name_length
-               + 2 + strlen(TELEPHONE_RECORD_BOOK_FILE_NAME)));
+    malloc(home_directory_name_length
+           +
+           2
+           +
+           strlen(TELEPHONE_RECORD_BOOK_FILE_NAME));
     
     if (!telephone_record_book_file_path)
     {
@@ -62,9 +65,6 @@ static char* write_separator(char* str, char c, size_t n)
     return str + n;
 }
 
-/*******************************************************************************
-* Allocates and sets a row separator string.                                   *
-*******************************************************************************/
 char* load_separator_string(size_t max_last_name_token_length,
                             size_t max_first_name_token_length,
                             size_t max_telephone_number_token_length,
@@ -119,10 +119,6 @@ char* load_separator_string(size_t max_last_name_token_length,
     return save_separator_string;
 }
 
-/*******************************************************************************
-* Creates and returns a structure containing all format strings necessary for  *
-* printing the telephone book record list.                                     *
-*******************************************************************************/
 output_table_strings*
 output_table_strings_create(telephone_book_record_list* list)
 {
@@ -271,9 +267,6 @@ output_table_strings_create(telephone_book_record_list* list)
     return output_table;
 }
 
-/*******************************************************************************
-* Frees all the memory alloated by the output table format strings.            *
-*******************************************************************************/
 void output_table_strings_free(output_table_strings* output_table_strs)
 {
     if (!output_table_strs)
@@ -299,9 +292,6 @@ void output_table_strings_free(output_table_strings* output_table_strs)
     free(output_table_strs);
 }
 
-/*******************************************************************************
-* Returns the format string for nifty printing the removed records.            *
-*******************************************************************************/
 char* get_removed_record_output_format_string(telephone_book_record_list* list)
 {
     size_t max_last_name_token_length        = 0;
@@ -315,7 +305,7 @@ char* get_removed_record_output_format_string(telephone_book_record_list* list)
     size_t telephone_contact_id_length;
     
     /* ALLOCATED: format_string */
-    char* format_string = malloc(sizeof(char) * FORMAT_STRING_CAPACITY);
+    char* format_string = malloc(FORMAT_STRING_CAPACITY);
     char* id_holder_string;
     
     telephone_book_record_list_node* current_node;

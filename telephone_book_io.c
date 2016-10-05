@@ -1,15 +1,14 @@
 #include "telephone_book_io.h"
 #include <stdio.h>
 
-#define MAX_RECORD_TOKEN_LENGTH_STRING "64"
+#define TOKEN_SCAN_FORMAT "%64s"
 #define MAX_RECORD_TOKEN_LENGTH 65
 
 /*******************************************************************************
-* Reconstructs the telephone book record list from a file pointed to by the    *
-* argument file handle.                                                        *
-* ---                                                                          *
-* Returns the record list on success, and NULL on failure.                     *
+* Documentation comments may be found in telephone_book_io.h                   *
 *******************************************************************************/
+
+
 telephone_book_record_list* telephone_book_record_list_read_from_file(FILE* f)
 {
     telephone_book_record_list* record_list;
@@ -36,10 +35,10 @@ telephone_book_record_list* telephone_book_record_list_read_from_file(FILE* f)
     while (!feof(f) && !ferror(f))
     {
         read_result = fscanf(f,
-                             "%" MAX_RECORD_TOKEN_LENGTH_STRING "s\
-                             %"  MAX_RECORD_TOKEN_LENGTH_STRING "s\
-                             %"  MAX_RECORD_TOKEN_LENGTH_STRING "s\
-                             %d\n",
+                             TOKEN_SCAN_FORMAT
+                             TOKEN_SCAN_FORMAT
+                             TOKEN_SCAN_FORMAT
+                             "%d\n",
                              last_name_token,
                              first_name_token,
                              phone_number_token,
@@ -57,19 +56,25 @@ telephone_book_record_list* telephone_book_record_list_read_from_file(FILE* f)
                 return NULL;
             }
             
-            telephone_book_record_list_add_record(record_list, current_record);
+            if (telephone_book_record_list_add_record(record_list,
+                                                      current_record))
+            {
+                telephone_book_record_list_free(record_list);
+                telephone_book_record_free(current_record);
+                return NULL;
+            }
+        }
+        else
+        {
+            fclose(f);
+            telephone_book_record_list_free(record_list);
+            return NULL;
         }
     }
     
     return record_list;
 }
 
-/*******************************************************************************
-* Writes the entire contents of the telephone record list to a specified file  *
-* handle.                                                                      *
-* ---                                                                          *
-* Returns zero on success, and a non-zero value if something fails.            *
-*******************************************************************************/
 int telephone_book_record_list_write_to_file(telephone_book_record_list* list,
                                              FILE* f)
 {
