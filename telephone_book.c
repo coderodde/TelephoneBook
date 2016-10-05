@@ -166,6 +166,7 @@ telephone_book_record_list_remove_entry(telephone_book_record_list* list,
             return removed_record;
         }
         
+        previous_node = current_node;
         current_node = next_node;
     }
     

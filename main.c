@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ERROR "[ERROR] "
+#define WARNING "[WARNING] "
+#define INFO "[INFO] "
+
 static const char* OPTION_ADD_SHORT = "-a";
 static const char* OPTION_ADD_LONG  = "--add";
 
@@ -137,7 +141,7 @@ int command_list_telephone_book_records_impl(
     /* ALLOCATED: best_record_list */
     if (!best_record_list)
     {
-        fputs("ERROR: Cannot allocate the best record list.", stderr);
+        fputs(ERROR "Cannot allocate the best record list.\n", stderr);
         return EXIT_FAILURE;
     }
     
@@ -162,7 +166,7 @@ int command_list_telephone_book_records_impl(
             
             if (!best_record_list)
             {
-                fputs("ERROR: Cannot allocate new best record list.", stderr);
+                fputs(ERROR "Cannot allocate new best record list.\n", stderr);
                 return EXIT_FAILURE;
             }
             
@@ -174,14 +178,14 @@ int command_list_telephone_book_records_impl(
             
             if (!record)
             {
-                fputs("ERROR: Cannot allocate a copy record.", stderr);
+                fputs(ERROR "Cannot allocate a copy record.\n", stderr);
                 telephone_book_record_list_free(best_record_list);
                 return EXIT_FAILURE;
             }
             
             if (telephone_book_record_list_add_record(best_record_list, record))
             {
-                fputs("ERROR: Cannot add a new record to the best list.",
+                fputs(ERROR "Cannot add a new record to the best list.\n",
                       stderr);
                 telephone_book_record_list_free(best_record_list);
                 telephone_book_record_free(record);
@@ -201,7 +205,7 @@ int command_list_telephone_book_records_impl(
             
             if (!record)
             {
-                fputs("ERROR: Cannot allocate a copy record.", stderr);
+                fputs(ERROR "Cannot allocate a copy record.\n", stderr);
                 telephone_book_record_list_free(best_record_list);
                 return EXIT_FAILURE;
             }
@@ -209,7 +213,7 @@ int command_list_telephone_book_records_impl(
             
             if (telephone_book_record_list_add_record(best_record_list, record))
             {
-                fputs("ERROR: Cannot add a new record to the best list.",
+                fputs(ERROR "Cannot add a new record to the best list.\n",
                       stderr);
                 telephone_book_record_list_free(best_record_list);
                 telephone_book_record_free(record);
@@ -273,7 +277,8 @@ static int command_list_telephone_book_records(int argc, char* argv[])
     
     if (!file_name)
     {
-        fputs("ERROR: Cannot allocate memory for the telephone book file name.",
+        fputs(ERROR
+              "Cannot allocate memory for the telephone book file name.\n",
               stderr);
         return EXIT_FAILURE;
     }
@@ -283,7 +288,7 @@ static int command_list_telephone_book_records(int argc, char* argv[])
     if (!f)
     {
         fprintf(stderr,
-                "ERROR: Cannot open the record book file '%s'.\n",
+                ERROR "Cannot open the record book file '%s'.\n",
                 file_name);
         
         free(file_name);
@@ -296,7 +301,7 @@ static int command_list_telephone_book_records(int argc, char* argv[])
     
     if (!record_list)
     {
-        fputs("ERROR: Cannot read the record book file.", stderr);
+        fputs(ERROR "Cannot read the record book file.\n", stderr);
         free(file_name);
         return EXIT_FAILURE;
     }
@@ -355,7 +360,8 @@ static int command_add_record(int argc, char* argv[])
     
     if (!file_name)
     {
-        fputs("ERROR: Cannot allocate memory for the telephone book file name.",
+        fputs(ERROR
+              "Cannot allocate memory for the telephone book file name.\n",
               stderr);
         return EXIT_FAILURE;
     }
@@ -364,8 +370,7 @@ static int command_add_record(int argc, char* argv[])
     
     if (!f)
     {
-        fprintf(stderr,
-                "ERROR: Cannot open the record book file '%s'.\n",
+        fprintf(stderr, ERROR "Cannot open the record book file '%s'.\n",
                 file_name);
         
         free(file_name);
@@ -378,7 +383,7 @@ static int command_add_record(int argc, char* argv[])
     
     if (!record_list)
     {
-        fputs("ERROR: Cannot read the record book file.", stderr);
+        fputs(ERROR "Cannot read the record book file.\n", stderr);
         free(file_name);
         return EXIT_FAILURE;
     }
@@ -388,7 +393,7 @@ static int command_add_record(int argc, char* argv[])
     
     if (!record)
     {
-        fputs("ERROR: Cannot allocate memory for the new record.", stderr);
+        fputs(ERROR "Cannot allocate memory for the new record.\n", stderr);
         free(file_name);
         telephone_book_record_list_free(record_list);
         return EXIT_FAILURE;
@@ -396,7 +401,7 @@ static int command_add_record(int argc, char* argv[])
     
     if (telephone_book_record_list_add_record(record_list, record))
     {
-        fputs("ERROR: Cannot add the new entry to the record book.", stderr);
+        fputs(ERROR "Cannot add the new entry to the record book.\n", stderr);
         free(file_name);
         telephone_book_record_list_free(record_list);
         telephone_book_record_free(record);
@@ -412,7 +417,7 @@ static int command_add_record(int argc, char* argv[])
     
     if (!f)
     {
-        fputs("ERROR: Cannot open the record book file.", stderr);
+        fputs(ERROR "Cannot open the record book file.\n", stderr);
         /* 'record' is contained in 'record_list' so is freed by it: */
         telephone_book_record_list_free(record_list);
         telephone_book_record_free(record);
@@ -421,7 +426,7 @@ static int command_add_record(int argc, char* argv[])
     
     if (telephone_book_record_list_write_to_file(record_list, f))
     {
-        fputs("ERROR: Cannot update the record book file.", stderr);
+        fputs(ERROR "Cannot update the record book file.\n", stderr);
     }
     
     fclose(f);
@@ -447,7 +452,7 @@ static int command_remove_records(int argc, char* argv[])
     
     if (argc < 3)
     {
-        puts("Warning: no record IDs given. Nothing to remove.");
+        puts(WARNING "No record IDs given. Nothing to remove.");
         return EXIT_SUCCESS;
     }
     
@@ -456,7 +461,7 @@ static int command_remove_records(int argc, char* argv[])
     
     if (!file_name)
     {
-        fputs("ERROR: Cannot allocate memory for the telephone book file name.",
+        fputs(ERROR "Cannot allocate memory for the telephone book file name.",
               stderr);
         return EXIT_FAILURE;
     }
@@ -466,7 +471,7 @@ static int command_remove_records(int argc, char* argv[])
     if (!f)
     {
         fprintf(stderr,
-                "ERROR: Cannot open the record book file '%s'.\n",
+                ERROR "Cannot open the record book file '%s'.\n",
                 file_name);
         
         free(file_name);
@@ -479,7 +484,7 @@ static int command_remove_records(int argc, char* argv[])
     
     if (!record_list)
     {
-        fputs("ERROR: Cannot read the record book file.", stderr);
+        fputs(ERROR "Cannot read the record book file.", stderr);
         free(file_name);
         return EXIT_FAILURE;
     }
@@ -489,7 +494,7 @@ static int command_remove_records(int argc, char* argv[])
     
     if (!removed_record_list)
     {
-        fputs("ERROR: Cannot allocate memory for the list of removed records.",
+        fputs(ERROR "Cannot allocate memory for the list of removed records.",
               stderr);
         free(file_name);
         telephone_book_record_list_free(record_list);
@@ -507,7 +512,7 @@ static int command_remove_records(int argc, char* argv[])
     
     if (!f)
     {
-        fputs("ERROR: Cannot open the record book file for writing.", stderr);
+        fputs(ERROR "Cannot open the record book file for writing.", stderr);
         telephone_book_record_list_free(record_list);
         telephone_book_record_list_free(removed_record_list);
         return EXIT_FAILURE;
@@ -517,7 +522,7 @@ static int command_remove_records(int argc, char* argv[])
     {
         if (sscanf(argv[arg_index], "%d", &id) != 1)
         {
-            printf("[WARNING] Bad ID = \'%s\'. Ignored.\n", argv[arg_index]);
+            printf(WARNING "Bad ID = \'%s\'. Ignored.\n", argv[arg_index]);
             continue;
         }
         
@@ -533,7 +538,7 @@ static int command_remove_records(int argc, char* argv[])
     
     if (telephone_book_record_list_write_to_file(record_list, f))
     {
-        fputs("ERROR: Cannot update the record book file.", stderr);
+        fputs(ERROR "Cannot update the record book file.", stderr);
         telephone_book_record_list_free(record_list);
         telephone_book_record_list_free(removed_record_list);
         fclose(f);
@@ -542,19 +547,19 @@ static int command_remove_records(int argc, char* argv[])
     
     fclose(f);
     
-    printf("[INFO] Number of records to remove: %d, removed: %d.\n",
+    printf(INFO "Number of records to remove: %d, removed: %d.\n",
            argc - 2,
            telephone_book_record_list_size(removed_record_list));
     
     if (telephone_book_record_list_size(removed_record_list) == 0)
     {
-        puts("[INFO] Nothing to remove.");
+        puts(INFO "Nothing to remove.");
         telephone_book_record_list_free(removed_record_list);
         telephone_book_record_list_free(record_list);
         return EXIT_SUCCESS;
     }
     
-    puts("[INFO] List of removed entries:");
+    puts(INFO "List of removed entries:");
     current_node = removed_record_list->head;
     removed_record_format =
         get_removed_record_output_format_string(removed_record_list);
